@@ -52,12 +52,10 @@ public class Turret : MonoBehaviour
     /// <param name="deltaTime"></param>
     void Pitch(Transform coordinateTransform, Transform selfTransform, Vector3 forward, float speed, Vector2 axis, float deltaTime)
     {
-        Vector3 dir = coordinateTransform.InverseTransformDirection(forward).normalized;
-        float sight = Mathf.Acos(Vector3.Dot(coordinateTransform.up, dir)) / Mathf.PI * 180;
-        float self = Mathf.Asin(Vector3.Dot(coordinateTransform.up, selfTransform.forward)) / Mathf.PI * 180;
+        float sight = Mathf.Acos(Vector3.Dot(coordinateTransform.up, forward)) / Mathf.PI * 180;
+        float self = Mathf.Acos(Vector3.Dot(coordinateTransform.up, selfTransform.forward)) / Mathf.PI * 180;
         float y = sight - self;
         float lr = y / Mathf.Abs(y);
-        Debug.Log($"{self}, {sight}");
         float angle = Mathf.Abs(speed * deltaTime) < Mathf.Abs(y) ? speed * deltaTime * lr : y;
 
         selfTransform.Rotate(axis, angle, Space.Self);
