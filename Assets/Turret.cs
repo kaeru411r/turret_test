@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Turret : MonoBehaviour
@@ -14,10 +10,10 @@ public class Turret : MonoBehaviour
     {
         if (_sight)
         {
-            Rotate(transform, transform, _sight.forward, _speed.x, Time.fixedDeltaTime);
+            transform.rotation = Rotate(transform, transform, _sight.forward, _speed.x, Time.fixedDeltaTime);
             if (_barrel)
             {
-                Pitch(transform, _barrel, _sight.forward, _speed.y, Time.fixedDeltaTime);
+                _barrel.rotation = Pitch(transform, _barrel, _sight.forward, _speed.y, Time.fixedDeltaTime);
             }
         }
     }
@@ -31,7 +27,7 @@ public class Turret : MonoBehaviour
     /// <param name="speed"></param>
     /// <param name="axis"></param>
     /// <param name="deltaTime"></param>
-    void Rotate(in Transform coordinateTransform, Transform selfTransform, in Vector3 forward, in float speed, in float deltaTime)
+    Quaternion Rotate(in Transform coordinateTransform, in Transform selfTransform, in Vector3 forward, in float speed, in float deltaTime)
     {
         Vector3 dir = coordinateTransform.InverseTransformDirection(forward);
         float side = Vector3.Dot(Vector3.right, dir);
@@ -39,7 +35,7 @@ public class Turret : MonoBehaviour
         float lr = y < 0 ? -1 : 1;
         float angle = speed * deltaTime < Mathf.Abs(y) ? speed * deltaTime * (y < 0 ? -1 : 1) : y;
 
-        selfTransform.Rotate(Vector3.up, angle, Space.Self);
+        return selfTransform.rotation * Quaternion.AngleAxis(angle, Vector3.up);
     }
 
     /// <summary>
@@ -51,7 +47,7 @@ public class Turret : MonoBehaviour
     /// <param name="speed"></param>
     /// <param name="axis"></param>
     /// <param name="deltaTime"></param>
-    void Pitch(in Transform coordinateTransform, Transform selfTransform, in Vector3 forward, float speed,  in float deltaTime)
+    Quaternion Pitch(in Transform coordinateTransform, in Transform selfTransform, in Vector3 forward, in float speed, in float deltaTime)
     {
         float sightDot = Mathf.Clamp(Vector3.Dot(coordinateTransform.up, forward), -1, 1);
         float selfDot = Mathf.Clamp(Vector3.Dot(coordinateTransform.up, selfTransform.forward), -1, 1);
@@ -60,6 +56,7 @@ public class Turret : MonoBehaviour
         float y = sight - self;
         int up = (selfTransform.up.y < 0 ? -1 : 1);
         float angle = speed * deltaTime < Mathf.Abs(y) ? speed * deltaTime * (y > 0 ? 1 : -1) : y * up;
-        selfTransform.Rotate(Vector3.right, angle, Space.Self);
+
+        return selfTransform.rotation * Quaternion.AngleAxis(angle, Vector3.right);
     }
 }
