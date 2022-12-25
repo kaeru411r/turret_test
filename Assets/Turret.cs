@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -30,7 +31,7 @@ public class Turret : MonoBehaviour
     /// <param name="speed"></param>
     /// <param name="axis"></param>
     /// <param name="deltaTime"></param>
-    void Rotate (Transform coordinateTransform, Transform selfTransform, Vector3 forward, float speed, Vector2 axis, float deltaTime)
+    void Rotate(Transform coordinateTransform, Transform selfTransform, Vector3 forward, float speed, Vector2 axis, float deltaTime)
     {
         Vector3 dir = coordinateTransform.InverseTransformDirection(forward);
         float side = Vector3.Dot(Vector3.Cross(Vector3.back, axis), dir);
@@ -52,12 +53,13 @@ public class Turret : MonoBehaviour
     /// <param name="deltaTime"></param>
     void Pitch(Transform coordinateTransform, Transform selfTransform, Vector3 forward, float speed, Vector2 axis, float deltaTime)
     {
-        float sight = Mathf.Acos(Vector3.Dot(coordinateTransform.up, forward)) / Mathf.PI * 180;
-        float self = Mathf.Acos(Vector3.Dot(coordinateTransform.up, selfTransform.forward)) / Mathf.PI * 180;
+        float sightDot = Mathf.Clamp(Vector3.Dot(coordinateTransform.up, forward), -1, 1);
+        float selfDot = Mathf.Clamp(Vector3.Dot(coordinateTransform.up, selfTransform.forward), -1, 1);
+        float sight = Mathf.Acos(sightDot) * Mathf.Rad2Deg;
+        float self = Mathf.Acos(selfDot) * Mathf.Rad2Deg;
         float y = sight - self;
-        float lr = y / Mathf.Abs(y);
-        float angle = Mathf.Abs(speed * deltaTime) < Mathf.Abs(y) ? speed * deltaTime * lr : y;
-
+        int up = (selfTransform.up.y < 0 ? -1 : 1);
+        float angle = speed * deltaTime < Mathf.Abs(y) ? speed * deltaTime * (y > 0 ? 1 : -1) : y * up;
         selfTransform.Rotate(axis, angle, Space.Self);
     }
 }
