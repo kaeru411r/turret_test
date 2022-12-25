@@ -49,7 +49,7 @@ public class Turret : MonoBehaviour
         float sight = Mathf.Acos(sightDot) * Mathf.Rad2Deg;
         float self = Mathf.Acos(selfDot) * Mathf.Rad2Deg;
         float y = sight - self;
-        int up = (selfTransform.up.y < 0 ? -1 : 1);
+        int up = (Vector3.Dot(coordinateTransform.up, selfTransform.up) < 0 ? -1 : 1);
         float angle = speed * deltaTime < Mathf.Abs(y) ? speed * deltaTime * (y > 0 ? 1 : -1) : y * up;
 
         return selfTransform.rotation * Quaternion.AngleAxis(angle, Vector3.right);
