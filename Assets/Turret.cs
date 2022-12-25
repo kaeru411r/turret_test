@@ -10,7 +10,7 @@ public class Turret : MonoBehaviour
     {
         if (_sight)
         {
-            transform.rotation = Rotate(transform, transform, _sight.forward, _speed.x, Time.fixedDeltaTime);
+            transform.rotation = Rotate(transform, _sight.forward, _speed.x, Time.fixedDeltaTime);
             if (_barrel)
             {
                 _barrel.rotation = Pitch(transform, _barrel, _sight.forward, _speed.y, Time.fixedDeltaTime);
@@ -21,18 +21,17 @@ public class Turret : MonoBehaviour
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="coordinateTransform"></param>
-    /// <param name="selfTransform"></param>
+    /// <param name="transform"></param>
     /// <param name="forward"></param>
     /// <param name="speed"></param>
     /// <param name="deltaTime"></param>
-    Quaternion Rotate(in Transform coordinateTransform, in Transform selfTransform, in Vector3 forward, in float speed, in float deltaTime)
+    Quaternion Rotate(in Transform transform, in Vector3 forward, in float speed, in float deltaTime)
     {
-        Vector3 dir = coordinateTransform.InverseTransformDirection(forward);
+        Vector3 dir = transform.InverseTransformDirection(forward);
         float y = Mathf.Atan2(dir.x, dir.z) / Mathf.PI * 180;
         float angle = speed * deltaTime < Mathf.Abs(y) ? speed * deltaTime * (y < 0 ? -1 : 1) : y;
 
-        return selfTransform.rotation * Quaternion.AngleAxis(angle, Vector3.up);
+        return transform.rotation * Quaternion.AngleAxis(angle, Vector3.up);
     }
 
     /// <summary>
