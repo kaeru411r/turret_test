@@ -25,14 +25,11 @@ public class Turret : MonoBehaviour
     /// <param name="selfTransform"></param>
     /// <param name="forward"></param>
     /// <param name="speed"></param>
-    /// <param name="axis"></param>
     /// <param name="deltaTime"></param>
     Quaternion Rotate(in Transform coordinateTransform, in Transform selfTransform, in Vector3 forward, in float speed, in float deltaTime)
     {
         Vector3 dir = coordinateTransform.InverseTransformDirection(forward);
-        float side = Vector3.Dot(Vector3.right, dir);
-        float y = Mathf.Atan2(side, dir.z) / Mathf.PI * 180;
-        float lr = y < 0 ? -1 : 1;
+        float y = Mathf.Atan2(dir.x, dir.z) / Mathf.PI * 180;
         float angle = speed * deltaTime < Mathf.Abs(y) ? speed * deltaTime * (y < 0 ? -1 : 1) : y;
 
         return selfTransform.rotation * Quaternion.AngleAxis(angle, Vector3.up);
@@ -45,7 +42,6 @@ public class Turret : MonoBehaviour
     /// <param name="selfTransform"></param>
     /// <param name="forward"></param>
     /// <param name="speed"></param>
-    /// <param name="axis"></param>
     /// <param name="deltaTime"></param>
     Quaternion Pitch(in Transform coordinateTransform, in Transform selfTransform, in Vector3 forward, in float speed, in float deltaTime)
     {
