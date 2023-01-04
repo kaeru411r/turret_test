@@ -4,16 +4,18 @@ public class Turret : MonoBehaviour
 {
     [SerializeField] Transform _sight;
     [SerializeField] Vector2 _speed;
+    [SerializeField] Transform _turret;
     [SerializeField] Transform _barrel;
-    float time = 1;
+
+
     private void FixedUpdate()
     {
-        if (_sight)
+        if (_sight && _turret)
         {
-            transform.rotation = Rotate(transform, _sight.forward, _speed.x, Time.fixedDeltaTime);
+            _turret.rotation = Rotate(_turret, _sight.forward, _speed.x, Time.fixedDeltaTime);
             if (_barrel)
             {
-                _barrel.rotation = Pitch(_barrel, transform.up, _sight.forward, _speed.y, Time.fixedDeltaTime);
+                _barrel.rotation = Pitch(_barrel, _turret.up, _sight.forward, _speed.y, Time.fixedDeltaTime);
             }
         }
     }
@@ -29,7 +31,7 @@ public class Turret : MonoBehaviour
     Quaternion Rotate(in Transform transform, in Vector3 forward, in float speed, in float deltaTime)
     {
         Vector3 dir = transform.InverseTransformDirection(forward);
-        float y = Mathf.Atan2(dir.x, dir.z) * Mathf.Deg2Rad;
+        float y = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
         float angle = speed * deltaTime < Mathf.Abs(y) ? speed * deltaTime * (y < 0 ? -1 : 1) : y;
 
         return transform.rotation * Quaternion.AngleAxis(angle, Vector3.up);
@@ -46,12 +48,18 @@ public class Turret : MonoBehaviour
     /// <returns>回転後のQuaternion</returns>
     Quaternion Pitch(in Transform selfTransform, in Vector3 baseAxis, in Vector3 forward, in float speed, in float deltaTime)
     {
-        float sightDot = Mathf.Clamp(Vector3.Dot(baseAxis, forward), -1, 1);
-        float selfDot = Mathf.Clamp(Vector3.Dot(baseAxis, selfTransform.forward), -1, 1);
-        float sight = Mathf.Acos(sightDot) * Mathf.Rad2Deg;
-        float self = Mathf.Acos(selfDot) * Mathf.Rad2Deg;
-        float y = sight - self;
-        int up = (Vector3.Dot(baseAxis, selfTransform.up) < 0 ? -1 : 1);
+        Vector3 bAxisNomal = baseAxis.normalized;
+        //ベクトルの基部に対する高さ成分
+        //(これらはDot関数の戻り値が1を超過したり-1未満だったりすることがあるので丸めてある)
+        float sightDot = Mathf.Clamp(Vector3.Dot(bAxisNomal, forward.normalized), -1, 1);
+        float selfDot = Mathf.Clamp(Vector3.Dot(bAxisNomal, selfTransform.forward), -1, 1);
+
+        //基部からの角度[度]
+        float sightTheta = Mathf.Acos(sightDot) * Mathf.Rad2Deg;
+        float selfTheta = Mathf.Acos(selfDot) * Mathf.Rad2Deg;
+
+        float y = sightTheta - selfTheta;
+        int up = (Vector3.Dot(bAxisNomal, selfTransform.up) < 0 ? -1 : 1);
         float angle = speed * deltaTime < Mathf.Abs(y) ? speed * deltaTime * (y > 0 ? 1 : -1) : y * up;
 
         return selfTransform.rotation * Quaternion.AngleAxis(angle, Vector3.right);
